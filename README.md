@@ -64,7 +64,7 @@ docs/        standards map, architecture notes
 
 - [x] **Sprint 0** — repo, structure, bilingual shell, integer-money core
 - [x] **Sprint 1** — synthetic dataset (AICPA ADS schema) + deterministic engines + tests
-- [ ] **Sprint 2** — AI extraction & 3-way match, exception review queue, demo mode
+- [x] **Sprint 2** — AI extraction & 3-way match, exception review queue, demo mode
 - [ ] **Sprint 3** — deployment, measured results, demo video
 
 ## License
