@@ -28,6 +28,10 @@ Every rule in the code cites the public standard it implements. Full map: [`docs
 
 ISA 240 (Revised) · ISA 500 · ISA 520 · ISA 530 · AICPA Audit Data Standards (GL, Procure-to-Pay) · UAE e-invoicing (Peppol PINT AE) · COSO 2013 · NIST AI RMF
 
+## Measured results
+
+89/89 tests passing; 100% of planted anomalies/exceptions/deviations detected across all three modules on seeded synthetic data. Full breakdown and what these numbers do (and don't) claim: [`docs/RESULTS.md`](docs/RESULTS.md).
+
 ## Data & compliance
 
 - **100% synthetic data** for a fictional company. No real client data, no real company names.
@@ -65,7 +69,7 @@ docs/        standards map, architecture notes
 - [x] **Sprint 0** — repo, structure, bilingual shell, integer-money core
 - [x] **Sprint 1** — synthetic dataset (AICPA ADS schema) + deterministic engines + tests
 - [x] **Sprint 2** — AI extraction & 3-way match, exception review queue, demo mode
-- [ ] **Sprint 3** — deployment, measured results, demo video
+- [ ] **Sprint 3** — deployment, ~~measured results~~ (see [`docs/RESULTS.md`](docs/RESULTS.md)), demo video
 
 ## License
 
