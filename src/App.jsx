@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { ShieldCheck, FileSearch, ListChecks, Scale } from "lucide-react";
 import { useI18n, LANGUAGES } from "./i18n/index.jsx";
 import MatchModule from "./ui/MatchModule.jsx";
+import ControlsModule from "./ui/ControlsModule.jsx";
 
 const MODULES = [
   { id: "gl", icon: Scale, status: "inProgress" },
   { id: "match", icon: FileSearch, status: "inProgress" },
-  { id: "controls", icon: ListChecks, status: "stretch" },
+  { id: "controls", icon: ListChecks, status: "inProgress" },
 ];
 
-// Modules without a dedicated view yet just show their dashboard card; "match" is the only one
-// wired to a real screen so far.
-const MODULE_VIEWS = { match: true };
+// Modules without a dedicated view yet just show their dashboard card.
+const MODULE_VIEWS = { match: true, controls: true };
 
 const STATUS_STYLE = {
   inProgress: "bg-amber-100 text-amber-800",
@@ -52,6 +52,8 @@ export default function App() {
       <main className="mx-auto max-w-6xl px-6 py-10">
         {view === "match" ? (
           <MatchModule onBack={() => setView("dashboard")} />
+        ) : view === "controls" ? (
+          <ControlsModule onBack={() => setView("dashboard")} />
         ) : (
           <>
             <h1 className="text-3xl font-semibold tracking-tight">{t("app.tagline")}</h1>

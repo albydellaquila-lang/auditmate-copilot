@@ -20,7 +20,7 @@ Finance and audit teams still reconcile invoices, test journal entries and docum
 
 1. **GL Integrity & Journal Entry Testing** — double-entry balancing per document, journal-entry risk criteria aligned with ISA 240 (Revised), Benford's law, cut-off, new-vendor and concentration analysis.
 2. **AI 3-Way Match** — purchase order ↔ goods receipt ↔ invoice. The LLM extracts invoice fields (PDF) with confidence scores; code performs the match within configurable tolerances.
-3. **Controls Testing** *(stretch)* — test of controls against a synthetic control matrix (COSO 2013).
+3. **Controls Testing** — test of controls against a synthetic control matrix (COSO 2013).
 
 ## Standards alignment
 
