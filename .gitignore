@@ -1,0 +1,15 @@
+# dependencies & builds
+node_modules/
+dist/
+# secrets: never commit real keys
+.env
+.env.*
+!.env.example
+# OS / editor
+.DS_Store
+*.log
+.vscode/
+.idea/
+# generated working papers / exports (regenerate from synthetic data instead)
+exports/
+output/
