@@ -2,20 +2,11 @@
 // baseline with zero engine findings — the controls-testing analogue of Sprint 1/2's "normal
 // population balances/matches" invariant.
 import { COMPANY, VENDORS, PREPARERS, APPROVAL_THRESHOLD_MINOR } from "../company.js";
+import { addDays, monthEnd } from "../jeUtils.js";
 import { buildAttestation, buildVendorOnboarding, buildPoApproval, buildJeReview, buildBankReconciliation } from "./controlsUtils.js";
 
 export const AUTHORIZED_APPROVER_ROLES = ["Controller", "CFO"];
 export const MATERIALITY_MINOR = 100000; // AED 1,000.00 — independent configurable assumption for this module
-
-function addDays(isoDate, days) {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-function monthEnd(year, month) {
-  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
-}
 
 /**
  * @param {import("../rng.js").createRng extends (...a:any)=>infer R ? R : never} rng

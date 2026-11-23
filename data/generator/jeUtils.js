@@ -43,3 +43,15 @@ export function isWeekendOrAfterHours(isoDateTime, { businessStartHour = 8, busi
   const isAfterHours = hour < businessStartHour || hour >= businessEndHour;
   return isWeekend || isAfterHours;
 }
+
+/** @param {string} isoDate e.g. "2026-03-14" @param {number} days @returns {string} ISO date */
+export function addDays(isoDate, days) {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+/** @param {number} year @param {number} month 1-12 @returns {string} ISO date of that month's last day */
+export function monthEnd(year, month) {
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+}

@@ -2,14 +2,9 @@
 // PO's own price and quantity, so it is a perfect 3-way match with zero engine flags — the
 // P2P analogue of Sprint 1's "normal GL population balances" invariant.
 import { VENDORS, PREPARERS } from "../company.js";
+import { addDays } from "../jeUtils.js";
 import { ITEM_CATALOG } from "./catalog.js";
 import { buildPo, buildGr, buildInvoice } from "./p2pUtils.js";
-
-function addDays(isoDate, days) {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
 
 /**
  * @param {import("../rng.js").createRng extends (...a:any)=>infer R ? R : never} rng

@@ -5,6 +5,8 @@
 // imports from src/ai/ and the "LLM never does math" rule is satisfied by construction, not by a
 // guardrail. No money tolerance math is needed either (only integer >=/=== comparisons on
 // already-minor-unit fields), so money.js's withinTolerance/sumMinor are not used here.
+import { monthEnd } from "../../data/generator/jeUtils.js";
+
 function testId(reasonCode, sampleId) {
   return `${reasonCode}:${sampleId}`;
 }
@@ -15,12 +17,13 @@ function testId(reasonCode, sampleId) {
  * @param {Array<{attestationId:string, personId:string, fiscalYear:number, signedDate:string|null}>} attestations
  * @param {{fiscalYear: number}} opts
  */
-export function testConductAttestations(attestations, { fiscalYear }) {
-  const yearStart = `${fiscalYear}-01-01`;
-  const yearEnd = `${fiscalYear}-12-31`;
+export function testConductAttestations(attestations, { fiscalYear } = {}) {
+  const yearStart = new Date(`${fiscalYear}-01-01T00:00:00Z`);
+  const yearEnd = new Date(`${fiscalYear}-12-31T00:00:00Z`);
   const flagged = [];
   for (const a of attestations) {
-    if (!a.signedDate || a.signedDate < yearStart || a.signedDate > yearEnd) {
+    const signed = a.signedDate ? new Date(`${a.signedDate}T00:00:00Z`) : null;
+    if (!signed || signed < yearStart || signed > yearEnd) {
       flagged.push({
         testId: testId("CTRL_ATTESTATION_MISSING", a.attestationId),
         controlId: "CTRL-ENV-01",
@@ -39,7 +42,7 @@ export function testConductAttestations(attestations, { fiscalYear }) {
  * @param {Array<object>} onboardings
  * @param {{authorizedApproverRoles: string[]}} opts
  */
-export function testVendorOnboardingApprovals(onboardings, { authorizedApproverRoles }) {
+export function testVendorOnboardingApprovals(onboardings, { authorizedApproverRoles } = {}) {
   const flagged = [];
   for (const o of onboardings) {
     if (!o.approverId || !authorizedApproverRoles.includes(o.approverRole)) {
@@ -50,7 +53,7 @@ export function testVendorOnboardingApprovals(onboardings, { authorizedApproverR
         sampleId: o.onboardingId,
         detail: { vendorId: o.vendorId, approverId: o.approverId, approverRole: o.approverRole },
       });
-    } else if (o.approvalDate > o.firstTransactionDate) {
+    } else if (!o.approvalDate || new Date(o.approvalDate) > new Date(o.firstTransactionDate)) {
       flagged.push({
         testId: testId("CTRL_VENDOR_ONBOARDING_LATE_APPROVAL", o.onboardingId),
         controlId: "CTRL-RISK-01",
@@ -69,7 +72,7 @@ export function testVendorOnboardingApprovals(onboardings, { authorizedApproverR
  * @param {Array<object>} poApprovals
  * @param {{thresholdMinor: number}} opts
  */
-export function testPurchaseOrderApprovals(poApprovals, { thresholdMinor }) {
+export function testPurchaseOrderApprovals(poApprovals, { thresholdMinor } = {}) {
   const flagged = [];
   for (const p of poApprovals) {
     if (p.totalMinor >= thresholdMinor && !p.approverId) {
@@ -110,7 +113,7 @@ export function testPurchaseOrderSegregationOfDuties(poApprovals) {
  * @param {Array<object>} jeReviews
  * @param {{materialityMinor: number}} opts
  */
-export function testJournalEntryReviews(jeReviews, { materialityMinor }) {
+export function testJournalEntryReviews(jeReviews, { materialityMinor } = {}) {
   const flagged = [];
   for (const j of jeReviews) {
     if (j.amountMinor < materialityMinor) continue;
@@ -137,7 +140,7 @@ export function testJournalEntryReviews(jeReviews, { materialityMinor }) {
 
 function monthEndDate(period) {
   const [year, month] = period.split("-").map(Number);
-  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+  return monthEnd(year, month);
 }
 
 // Source: COSO 2013, Principle 16 — conducts ongoing and/or separate evaluations; monthly bank
@@ -169,7 +172,9 @@ export function testBankReconciliations(bankReconciliations, { graceDays = 15 } 
         sampleId: b.reconciliationId,
         detail: { period: b.period, completedDate: b.completedDate, daysAfterPeriodEnd },
       });
-    } else if (!b.reviewerId || b.reviewerId === b.preparerId) {
+    }
+    // Independent of lateness: a self-reviewed reconciliation is a SoD violation either way.
+    if (!b.reviewerId || b.reviewerId === b.preparerId) {
       flagged.push({
         testId: testId("CTRL_BANKREC_SOD_VIOLATION", b.reconciliationId),
         controlId: "CTRL-MON-01",

@@ -99,7 +99,7 @@ export function flagMissingGoodsReceipts(grLines, invoiceLines) {
  * @param {object[]} invoiceLines
  * @param {{asOfDate: string, missingInvoiceGraceDays?: number}} opts
  */
-export function flagMissingInvoices(poLines, goodsReceipts, invoiceLines, { asOfDate, missingInvoiceGraceDays = 30 }) {
+export function flagMissingInvoices(poLines, goodsReceipts, invoiceLines, { asOfDate, missingInvoiceGraceDays = 30 } = {}) {
   const receiptDateByGrId = new Map(goodsReceipts.headers.map((h) => [h.grId, h.receiptDate]));
   const receivedByLine = sumQtyByPoLine(goodsReceipts.lines, "qtyReceived");
   const invoicedByLine = sumQtyByPoLine(invoiceLines, "qtyInvoiced");
@@ -108,7 +108,7 @@ export function flagMissingInvoices(poLines, goodsReceipts, invoiceLines, { asOf
     const key = poLineKey(grLine.poId, grLine.lineNo);
     const receiptDate = receiptDateByGrId.get(grLine.grId);
     const current = latestReceiptByLine.get(key);
-    if (!current || receiptDate > current) latestReceiptByLine.set(key, receiptDate);
+    if (!current || new Date(receiptDate) > new Date(current)) latestReceiptByLine.set(key, receiptDate);
   }
 
   const asOf = new Date(`${asOfDate}T00:00:00Z`);
@@ -173,7 +173,7 @@ export function flagInvoiceBeforePO(poHeaders, invoiceHeaders) {
   const flagged = [];
   for (const inv of invoiceHeaders) {
     const poDate = poDateById.get(inv.poId);
-    if (poDate && inv.issueDate < poDate) {
+    if (poDate && new Date(inv.issueDate) < new Date(poDate)) {
       flagged.push({
         exceptionId: exceptionId("INVOICE_BEFORE_PO", inv.poId, undefined, inv.invoiceId),
         reasonCode: "INVOICE_BEFORE_PO",
@@ -195,7 +195,12 @@ export function flagInvoiceBeforePO(poHeaders, invoiceHeaders) {
 export function flagVatMismatches(invoiceHeaders, { vatRateBps = 500, vatToleranceMinor = 1 } = {}) {
   const flagged = [];
   for (const inv of invoiceHeaders) {
-    const expectedVatMinor = computeVatMinor(inv.taxableAmountMinor, { rateBps: vatRateBps });
+    let expectedVatMinor;
+    try {
+      expectedVatMinor = computeVatMinor(inv.taxableAmountMinor, { rateBps: vatRateBps });
+    } catch {
+      continue; // malformed taxable amount; not this check's job to validate shape
+    }
     if (!withinTolerance(inv.vatAmountMinor, expectedVatMinor, { absMinor: vatToleranceMinor })) {
       flagged.push({
         exceptionId: exceptionId("VAT_MISCALC", inv.poId, undefined, inv.invoiceId),

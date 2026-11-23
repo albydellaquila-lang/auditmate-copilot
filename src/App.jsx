@@ -10,8 +10,10 @@ const MODULES = [
   { id: "controls", icon: ListChecks, status: "inProgress" },
 ];
 
-// Modules without a dedicated view yet just show their dashboard card.
-const MODULE_VIEWS = { match: true, controls: true };
+// Modules without a dedicated view yet just show their dashboard card. Maps a module id to the
+// component that renders its view, so both "is this card clickable" and "what do we render for
+// this view" read from the same table instead of being wired by hand in two separate places.
+const MODULE_VIEWS = { match: MatchModule, controls: ControlsModule };
 
 const STATUS_STYLE = {
   inProgress: "bg-amber-100 text-amber-800",
@@ -22,6 +24,7 @@ const STATUS_STYLE = {
 export default function App() {
   const { lang, setLang, t } = useI18n();
   const [view, setView] = useState("dashboard");
+  const ActiveView = MODULE_VIEWS[view];
 
   return (
     <div className="min-h-screen text-slate-900">
@@ -50,10 +53,8 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-10">
-        {view === "match" ? (
-          <MatchModule onBack={() => setView("dashboard")} />
-        ) : view === "controls" ? (
-          <ControlsModule onBack={() => setView("dashboard")} />
+        {ActiveView ? (
+          <ActiveView onBack={() => setView("dashboard")} />
         ) : (
           <>
             <h1 className="text-3xl font-semibold tracking-tight">{t("app.tagline")}</h1>
@@ -62,7 +63,7 @@ export default function App() {
             <section className="mt-8 grid gap-4 md:grid-cols-3">
               {MODULES.map(({ id, icon: Icon, status }) => {
                 const hasView = Boolean(MODULE_VIEWS[id]);
-                const Tag = hasView ? "button" : "div";
+                const Tag = hasView ? "button" : "article";
                 return (
                   <Tag
                     key={id}
