@@ -1,14 +1,17 @@
-import React, { useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useI18n } from "../i18n/index.jsx";
 import { generateControlsDataset, CONTROL_MATRIX } from "../../data/generator/controls/index.js";
 import { runControlsTesting } from "../engines/controlsTesting.js";
 import ControlTestQueue from "./ControlTestQueue.jsx";
 
+const DEFAULT_SEED = 23;
+
 export default function ControlsModule({ onBack }) {
   const { t } = useI18n();
+  const [seed, setSeed] = useState(DEFAULT_SEED);
 
-  const dataset = useMemo(() => generateControlsDataset(), []);
+  const dataset = useMemo(() => generateControlsDataset({ seed }), [seed]);
   const findings = useMemo(() => runControlsTesting(dataset, dataset.config), [dataset]);
 
   const deviationCountByControl = useMemo(() => {
@@ -23,8 +26,23 @@ export default function ControlsModule({ onBack }) {
         <ArrowLeft className="h-4 w-4" aria-hidden /> {t("controls.backToDashboard")}
       </button>
 
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight">{t("module.controls.title")}</h1>
-      <p className="mt-1 max-w-2xl text-sm text-slate-600">{t("module.controls.body")}</p>
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("module.controls.title")}</h1>
+          <p className="mt-1 max-w-2xl text-sm text-slate-600">{t("module.controls.body")}</p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 font-mono">{t("common.seed.label", { seed })}</span>
+          <button
+            type="button"
+            onClick={() => setSeed(Math.floor(Math.random() * 1000000))}
+            className="flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden /> {t("common.seed.regenerate")}
+          </button>
+        </div>
+      </div>
+      <p className="mt-2 max-w-2xl text-xs text-slate-500">{t("common.seed.notice")}</p>
 
       <div className="mt-4 rounded-lg bg-indigo-50 px-4 py-2 text-sm text-indigo-800">{t("controls.noAiNotice")}</div>
 

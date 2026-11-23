@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { ShieldCheck, FileSearch, ListChecks, Scale } from "lucide-react";
+import { ShieldCheck, FileSearch, ListChecks, Scale, Calculator } from "lucide-react";
 import { useI18n, LANGUAGES } from "./i18n/index.jsx";
+import GLModule from "./ui/GLModule.jsx";
 import MatchModule from "./ui/MatchModule.jsx";
 import ControlsModule from "./ui/ControlsModule.jsx";
+import PlanningModule from "./ui/PlanningModule.jsx";
 
 const MODULES = [
   { id: "gl", icon: Scale, status: "inProgress" },
   { id: "match", icon: FileSearch, status: "inProgress" },
   { id: "controls", icon: ListChecks, status: "inProgress" },
+  { id: "planning", icon: Calculator, status: "inProgress" },
 ];
 
 // Modules without a dedicated view yet just show their dashboard card. Maps a module id to the
 // component that renders its view, so both "is this card clickable" and "what do we render for
 // this view" read from the same table instead of being wired by hand in two separate places.
-const MODULE_VIEWS = { match: MatchModule, controls: ControlsModule };
+const MODULE_VIEWS = { gl: GLModule, match: MatchModule, controls: ControlsModule, planning: PlanningModule };
 
 const STATUS_STYLE = {
   inProgress: "bg-amber-100 text-amber-800",
@@ -60,7 +63,7 @@ export default function App() {
             <h1 className="text-3xl font-semibold tracking-tight">{t("app.tagline")}</h1>
             <p className="mt-2 max-w-2xl text-slate-600">{t("app.subtitle")}</p>
 
-            <section className="mt-8 grid gap-4 md:grid-cols-3">
+            <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {MODULES.map(({ id, icon: Icon, status }) => {
                 const hasView = Boolean(MODULE_VIEWS[id]);
                 const Tag = hasView ? "button" : "article";

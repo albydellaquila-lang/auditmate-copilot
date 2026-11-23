@@ -78,6 +78,11 @@ export function withinTolerance(actual, expected, { absMinor = 0, bps = 0 } = {}
   return diff * 10000 <= bps * Math.abs(expected);
 }
 
+/** Integer percentage of an amount, expressed in basis points (1% = 100 bps), rounded half away from zero. */
+export function percentageOfMinor(amountMinor, bps) {
+  return Math.round((amountMinor * bps) / 10000);
+}
+
 /** Display only. Never feed the result back into calculations. */
 export function formatMinor(minor, { locale = "en-US", currency = "AED" } = {}) {
   return new Intl.NumberFormat(locale, {

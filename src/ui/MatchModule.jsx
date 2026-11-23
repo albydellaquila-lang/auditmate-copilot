@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useI18n } from "../i18n/index.jsx";
 import { generateP2PDataset } from "../../data/generator/p2p/index.js";
 import { COMPANY, VENDORS } from "../../data/generator/company.js";
@@ -7,11 +7,13 @@ import { runThreeWayMatch } from "../engines/threeWayMatch.js";
 import ExceptionQueue from "./ExceptionQueue.jsx";
 
 const REASON_CODES = ["QTY_MISMATCH", "PRICE_VARIANCE", "MISSING_GR", "MISSING_INVOICE", "DUPLICATE_INVOICE", "INVOICE_BEFORE_PO", "VAT_MISCALC"];
+const DEFAULT_SEED = 7;
 
 export default function MatchModule({ onBack }) {
   const { t } = useI18n();
+  const [seed, setSeed] = useState(DEFAULT_SEED);
 
-  const dataset = useMemo(() => generateP2PDataset(), []);
+  const dataset = useMemo(() => generateP2PDataset({ seed }), [seed]);
   const exceptions = useMemo(() => runThreeWayMatch(dataset, dataset.config), [dataset]);
 
   // Looked up by ExceptionCard to render AI evidence: the actual invoice document (for live-mode
@@ -36,8 +38,23 @@ export default function MatchModule({ onBack }) {
         <ArrowLeft className="h-4 w-4" aria-hidden /> {t("match.backToDashboard")}
       </button>
 
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight">{t("module.match.title")}</h1>
-      <p className="mt-1 max-w-2xl text-sm text-slate-600">{t("module.match.body")}</p>
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("module.match.title")}</h1>
+          <p className="mt-1 max-w-2xl text-sm text-slate-600">{t("module.match.body")}</p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span className="rounded-full bg-slate-100 px-2.5 py-1 font-mono">{t("common.seed.label", { seed })}</span>
+          <button
+            type="button"
+            onClick={() => setSeed(Math.floor(Math.random() * 1000000))}
+            className="flex items-center gap-1 rounded-md border border-slate-300 px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden /> {t("common.seed.regenerate")}
+          </button>
+        </div>
+      </div>
+      <p className="mt-2 max-w-2xl text-xs text-slate-500">{t("common.seed.notice")}</p>
 
       <div className="mt-4 rounded-lg bg-indigo-50 px-4 py-2 text-sm text-indigo-800">{t("match.ai.demoModeNotice")}</div>
 

@@ -20,6 +20,7 @@ Thresholds that a standard leaves to professional judgment are **configurable as
 | Fraud & journal entries | **ISA 240 (Revised)** — IAASB | Issued July 2025; effective for periods beginning on or after 15 Dec 2026 | JET risk criteria |
 | | PCAOB AS 2401 | In force (US) | Cross-reference for US readers |
 | Audit evidence | ISA 500 | In force. *Revised ISA 330/500/520 are proposals only — do not cite as effective* | Evidence review framing |
+| Materiality | ISA 320 | In force | Materiality / performance-materiality calculator |
 | Analytical procedures | ISA 520 | In force | YoY / variance analysis |
 | Sampling | ISA 530 + AICPA Audit Guide *Audit Sampling* | In force | Monetary unit sampling with confidence factors |
 | Risk assessment | ISA 315 (Revised 2019) | In force | Risk factors (no proprietary scoring formula) |
