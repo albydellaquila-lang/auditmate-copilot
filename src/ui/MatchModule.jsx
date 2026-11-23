@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useI18n } from "../i18n/index.jsx";
 import { generateP2PDataset } from "../../data/generator/p2p/index.js";
+import { COMPANY, VENDORS } from "../../data/generator/company.js";
 import { runThreeWayMatch } from "../engines/threeWayMatch.js";
 import ExceptionQueue from "./ExceptionQueue.jsx";
 
@@ -10,10 +11,18 @@ const REASON_CODES = ["QTY_MISMATCH", "PRICE_VARIANCE", "MISSING_GR", "MISSING_I
 export default function MatchModule({ onBack }) {
   const { t } = useI18n();
 
-  const exceptions = useMemo(() => {
-    const dataset = generateP2PDataset();
-    return runThreeWayMatch(dataset, dataset.config);
-  }, []);
+  const dataset = useMemo(() => generateP2PDataset(), []);
+  const exceptions = useMemo(() => runThreeWayMatch(dataset, dataset.config), [dataset]);
+
+  // Looked up by ExceptionCard to render AI evidence: the actual invoice document (for live-mode
+  // extraction) plus display names for the vendor/buyer named on it.
+  const invoicesById = useMemo(() => {
+    const map = {};
+    for (const header of dataset.invoices.headers) map[header.invoiceId] = { header, lines: [] };
+    for (const line of dataset.invoices.lines) map[line.invoiceId]?.lines.push(line);
+    return map;
+  }, [dataset]);
+  const vendorNameById = useMemo(() => Object.fromEntries(VENDORS.map((v) => [v.id, v.name])), []);
 
   const countsByReason = useMemo(() => {
     const counts = Object.fromEntries(REASON_CODES.map((c) => [c, 0]));
@@ -44,7 +53,7 @@ export default function MatchModule({ onBack }) {
       </section>
 
       <section className="mt-6">
-        <ExceptionQueue exceptions={exceptions} />
+        <ExceptionQueue exceptions={exceptions} invoicesById={invoicesById} vendorNameById={vendorNameById} buyerName={COMPANY.name} />
       </section>
     </div>
   );

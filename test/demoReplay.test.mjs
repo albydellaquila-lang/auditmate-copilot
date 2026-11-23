@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DEMO_EXTRACTIONS } from "../data/demo/invoiceExtractions.js";
-import { getDemoExtraction } from "../src/ai/demoReplay.js";
+import { getDemoExtraction, extractInvoice } from "../src/ai/demoReplay.js";
 import { validateExtraction } from "../src/ai/extractionSchema.js";
 import { getAiMode } from "../src/ai/mode.js";
 
@@ -23,4 +23,9 @@ test("getDemoExtraction: returns the fixture for a known id, null for an unknown
 
 test("getAiMode: defaults to demo with no env override", () => {
   assert.equal(getAiMode(), "demo");
+});
+
+test("extractInvoice: in demo mode (the default), dispatches to the recorded fixture", async () => {
+  assert.equal(await extractInvoice("INV-0001"), DEMO_EXTRACTIONS["INV-0001"]);
+  assert.equal(await extractInvoice("INV-DOES-NOT-EXIST"), null);
 });

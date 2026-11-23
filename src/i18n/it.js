@@ -37,6 +37,8 @@ export default {
   "match.ai.confidence": "{pct}% di confidenza",
   "match.ai.citation": "Fonte: {citation}",
   "match.ai.unavailable": "Nessuna estrazione AI registrata per questo documento.",
+  "match.ai.loading": "Estrazione dei campi fattura in corso…",
+  "match.ai.error": "Estrazione dal vivo non riuscita: {message}",
   "match.ai.noInvoiceDocument": "Questa eccezione non ha un documento fattura associato.",
   "match.ai.demoModeNotice": "Modalità demo: le estrazioni AI qui sotto sono risposte registrate, non chiamate al modello in tempo reale.",
   "match.ai.field.invoice": "Fattura",

@@ -15,7 +15,7 @@ export async function requestLiveExtraction(rawDocumentText) {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      model: import.meta.env?.VITE_ANTHROPIC_MODEL ?? "claude-sonnet-5-5",
+      model: import.meta.env?.VITE_ANTHROPIC_MODEL ?? "claude-sonnet-5",
       max_tokens: 2000,
       messages: [{ role: "user", content: prompt }],
     }),

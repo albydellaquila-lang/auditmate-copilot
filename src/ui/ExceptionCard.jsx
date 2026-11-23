@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Check, X } from "lucide-react";
 import { useI18n } from "../i18n/index.jsx";
 import { formatMinor } from "../engines/money.js";
-import { getDemoExtraction } from "../ai/demoReplay.js";
+import { extractInvoice } from "../ai/demoReplay.js";
+import { renderInvoiceText } from "../ai/renderInvoiceText.js";
 
 function toDisplayParams(detail) {
   const params = {};
@@ -12,9 +13,26 @@ function toDisplayParams(detail) {
   return params;
 }
 
-function AiEvidencePanel({ invoiceId }) {
+// Mode-aware (src/ai/mode.js): replays a recorded extraction in demo mode, or calls the live
+// model via the dev proxy when VITE_AI_MODE=live — same rendering either way, since both paths
+// resolve to the same InvoiceExtraction shape (src/ai/extractionSchema.js).
+function AiEvidencePanel({ invoiceId, invoice, vendorName, buyerName }) {
   const { t } = useI18n();
-  const extraction = getDemoExtraction(invoiceId);
+  const [state, setState] = useState({ status: "loading", extraction: null, error: null });
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ status: "loading", extraction: null, error: null });
+    const rawText = invoice ? renderInvoiceText(invoice.header, invoice.lines, { vendorName, buyerName }) : undefined;
+    extractInvoice(invoiceId, rawText)
+      .then((extraction) => { if (!cancelled) setState({ status: "done", extraction, error: null }); })
+      .catch((error) => { if (!cancelled) setState({ status: "error", extraction: null, error }); });
+    return () => { cancelled = true; };
+  }, [invoiceId, invoice, vendorName, buyerName]);
+
+  if (state.status === "loading") return <p className="text-sm text-slate-500">{t("match.ai.loading")}</p>;
+  if (state.status === "error") return <p className="text-sm text-rose-700">{t("match.ai.error", { message: state.error.message })}</p>;
+  const extraction = state.extraction;
   if (!extraction) return <p className="text-sm text-slate-500">{t("match.ai.unavailable")}</p>;
 
   const fields = [
@@ -45,7 +63,7 @@ function AiEvidencePanel({ invoiceId }) {
   );
 }
 
-export default function ExceptionCard({ exception, decision, onDecide }) {
+export default function ExceptionCard({ exception, decision, onDecide, invoicesById, vendorNameById, buyerName }) {
   const { t } = useI18n();
   const [showEvidence, setShowEvidence] = useState(false);
   const [reviewer, setReviewer] = useState("");
@@ -80,7 +98,16 @@ export default function ExceptionCard({ exception, decision, onDecide }) {
       {showEvidence && (
         <div className="mt-3 rounded-lg bg-slate-50 p-3">
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("match.ai.panelTitle")}</div>
-          {exception.invoiceId ? <AiEvidencePanel invoiceId={exception.invoiceId} /> : <p className="text-sm text-slate-500">{t("match.ai.noInvoiceDocument")}</p>}
+          {exception.invoiceId ? (
+            <AiEvidencePanel
+              invoiceId={exception.invoiceId}
+              invoice={invoicesById?.[exception.invoiceId]}
+              vendorName={vendorNameById?.[invoicesById?.[exception.invoiceId]?.header.vendorId]}
+              buyerName={buyerName}
+            />
+          ) : (
+            <p className="text-sm text-slate-500">{t("match.ai.noInvoiceDocument")}</p>
+          )}
         </div>
       )}
 

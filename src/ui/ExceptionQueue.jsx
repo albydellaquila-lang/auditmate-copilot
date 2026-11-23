@@ -7,9 +7,9 @@ import ExceptionCard from "./ExceptionCard.jsx";
  * human reviewer's decision is kept in-memory for the session (CLAUDE.md: "a human reviewer
  * approves or rejects every exception"); nothing here computes or re-decides anything the
  * engine already decided — it only records what the reviewer chose.
- * @param {{exceptions: Array<object>}} props
+ * @param {{exceptions: Array<object>, invoicesById: object, vendorNameById: object, buyerName: string}} props
  */
-export default function ExceptionQueue({ exceptions }) {
+export default function ExceptionQueue({ exceptions, invoicesById, vendorNameById, buyerName }) {
   const { t } = useI18n();
   const [decisions, setDecisions] = useState({});
 
@@ -28,7 +28,7 @@ export default function ExceptionQueue({ exceptions }) {
         </h3>
         <div className="mt-3 space-y-3">
           {pending.map((exception) => (
-            <ExceptionCard key={exception.exceptionId} exception={exception} onDecide={handleDecide} />
+            <ExceptionCard key={exception.exceptionId} exception={exception} onDecide={handleDecide} invoicesById={invoicesById} vendorNameById={vendorNameById} buyerName={buyerName} />
           ))}
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function ExceptionQueue({ exceptions }) {
           <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t("match.reviewed.title")}</h3>
           <div className="mt-3 space-y-3">
             {reviewed.map((exception) => (
-              <ExceptionCard key={exception.exceptionId} exception={exception} decision={decisions[exception.exceptionId]} onDecide={handleDecide} />
+              <ExceptionCard key={exception.exceptionId} exception={exception} decision={decisions[exception.exceptionId]} onDecide={handleDecide} invoicesById={invoicesById} vendorNameById={vendorNameById} buyerName={buyerName} />
             ))}
           </div>
         </div>

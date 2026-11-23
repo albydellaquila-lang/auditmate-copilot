@@ -37,6 +37,8 @@ export default {
   "match.ai.confidence": "{pct}% confidence",
   "match.ai.citation": "Source: {citation}",
   "match.ai.unavailable": "No AI extraction recorded for this document.",
+  "match.ai.loading": "Extracting invoice fields…",
+  "match.ai.error": "Live extraction failed: {message}",
   "match.ai.noInvoiceDocument": "This exception has no associated invoice document.",
   "match.ai.demoModeNotice": "Demo mode: AI extractions below are recorded responses, not live model calls.",
   "match.ai.field.invoice": "Invoice",
